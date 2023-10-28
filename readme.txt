@@ -12,7 +12,14 @@
 
 Установка зависимостей: pip install -r requirements.txt
 
-Создание суперюзера: python manage.py create_superuser
+Создание суперюзера: python manage.py create_superuser (Admin с паролем 12345)
 
 Переменные окружения, храняться в файле .env
 Тестирование производилось командой coverage run --source='.' manage.py test
+
+Прежде чем начать использовать проект нужно: Установить на ПК пакет docker и docker-compose Создать файл .env для переменного окружения.
+
+Переменные окружения, храняться в файле .env Для его создания необходимо переименовать .env-sampel в .env и заполнить своими данными
+Пример: ALLOWED_HOSTS=* POSTGRES_DB=db POSTGRES_USER=postgres POSTGRES_PASSWORD=postgres DATABASES_HOST=db TELEGRAM_BOT_TOKEN=
+
+Запуск Docker проекта: --- docker-compose build --- docker-compose up

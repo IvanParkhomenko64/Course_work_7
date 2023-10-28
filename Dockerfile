@@ -6,7 +6,7 @@ WORKDIR /app
 COPY ./requirements.txt .
 
 # Установите зависимости
-RUN pip install -r requirements.txt
+RUN  pip install -r requirements.txt
 
 # Копируйте весь проект внутрь контейнера
 COPY . .
