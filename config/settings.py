@@ -14,13 +14,12 @@ load_dotenv(dotenv_path=dot_env_path)
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = 'django-insecure-rj5+v)m=*#ybz0yf7r5drv_!f+c7joslnev7+3+t(ij&+=b-5!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [os.getenv('ALLOWED_HOSTS')]
 
 # Application definition
 
@@ -71,21 +70,18 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-     'default': {
+    'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME'), # Название БД
-        'USER': os.getenv('DB_USER'), # Пользователь для подключения
-        'PASSWORD': os.getenv('DB_PASSWORD'), # Пароль для этого пользователя
-        'HOST': os.getenv('HOST'), # Адрес, на котором развернут сервер БД
-        'PORT': os.getenv('PORT'), # Порт, на котором работает сервер БД
+        'NAME': os.getenv('POSTGRES_DB'),  # Название БД
+        'USER': os.getenv('POSTGRES_USER'),  # Пользователь для подключения
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),  # Пароль для этого пользователя
+        'HOST': os.getenv('DATABASES_HOST'),  # Адрес, на котором развернут сервер БД
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -105,7 +101,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
@@ -117,7 +112,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
@@ -126,7 +120,6 @@ STATIC_URL = "static/"
 AUTH_USER_MODEL = 'users.User'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_REDIRECT_URL = '/'
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -154,10 +147,10 @@ CSRF_TRUSTED_ORIGINS = [
 # Настройки для Celery
 
 # URL-адрес брокера сообщений
-CELERY_BROKER_URL = "redis://localhost:6379"  # Например, Redis, который по умолчанию работает на порту 6379
+CELERY_BROKER_URL = "redis://redis:6379"  # Например, Redis, который по умолчанию работает на порту 6379
 
 # URL-адрес брокера результатов, также Redis
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://redis:6379"
 
 # Часовой пояс для работы Celery
 CELERY_TIMEZONE = "Europe/Moscow"

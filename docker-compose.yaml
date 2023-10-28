@@ -1,0 +1,112 @@
+version: '3'  # Версия формата файла docker-compose.yml
+services:
+  #само приложение
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile # Определяет, как собирать образ для Django из Dockerfile.
+    container_name: web
+    networks: # Подключение к пользовательской сети
+      - myNet
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"  # Проксирование порта 8000 контейнера на порт 8000 хоста.
+    depends_on:
+      db:
+        condition: service_healthy   # установка зависимостей и "здоровья" БД"
+      redis:
+        condition: service_healthy   #установка зависимостей и "здоровья" БД redis"
+    env_file:
+      - .env
+    restart: unless-stopped  # Добавление настройки для перезапуска контейнера, всегда перезапуск
+
+
+  # PostgreSQL сервис
+  db:
+    restart: always
+    image: postgres:latest
+
+    container_name: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data1/pgdata
+    env_file:
+      - .env
+#    environment:
+#      - POSTGRES_PASSWORD=postgres
+#      - POSTGRES_USER=postgres
+#      - POSTGRES_DB=db
+#      - POSTGRES_HOST_AUTH_METHOD=md5
+
+    networks: # Подключение к пользовательской сети
+      - myNet
+    ports:
+      - "5432:5432"  # Проксирование порта 5432 контейнера на порт 5432 хоста.
+    healthcheck: # Определение healthcheck для контейнера PostgreSQL.
+      test: [ 'CMD-SHELL', 'pg_isready -U postgres' ]
+      interval: 10s # Интервал между проверками состояния.
+      timeout: 5s   # Таймаут для проверки.
+      retries: 5  # Количество попыток проверки.
+
+
+
+  # Redis сервис
+  redis:
+    image: redis:latest
+    container_name: redis
+    command: redis-server --save 20 1 --loglevel warning
+    networks: # Подключение к пользовательской сети
+      - myNet
+
+    ports:
+      - "6379:6379"  # Проксирование порта 6379 контейнера на порт 6379 хоста.
+
+    healthcheck: # Определение healthcheck для контейнера redis.
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s   # Интервал между проверками состояния.
+      timeout: 5s  # Таймаут для проверки.
+      retries: 3  # Количество попыток проверки.
+    restart: unless-stopped  # Добавление настройки для перезапуска контейнера, всегда перезапуск
+  # Celery  сервис
+  celery:
+    restart: always
+    build: .
+    container_name: celery_app
+    tty: true
+    command: celery -A config worker --loglevel=info
+    volumes:
+      - .:/app
+
+    networks: # Подключение к пользовательской сети
+      - myNet
+
+    depends_on:
+      - db  # Указывает, что этот сервис зависит от сервиса "db".
+      - redis  # Указывает, что этот сервис зависит от сервиса "redis"
+
+    healthcheck: # Определение healthcheck для контейнера celery.
+      test: [ "CMD", "celery", "inspect", "ping" ]
+      interval: 10s   # Интервал между проверками состояния.
+      timeout: 5s  # Таймаут для проверки.
+      retries: 3  # Количество попыток проверки.
+
+
+
+  # Celery   beat сервис
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    tty: true
+    command: celery -A config beat --loglevel=info
+    volumes:
+      - .:/app
+    depends_on:
+      - celery
+
+# Пользовательская сеть
+networks:
+  myNet:
+    driver: bridge
+# для сохранения данных между запусками
+volumes:
+  postgres_data:
